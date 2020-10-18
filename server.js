@@ -2,6 +2,7 @@ const { table } = require("console");
 const nodemailer = require('nodemailer');
 var express = require("express");
 var path = require("path");
+const { EDESTADDRREQ } = require("constants");
 var app = express();
 var PORT = 3000;
 
@@ -49,34 +50,52 @@ app.get("/api/waitingList", function(req, res) {
     return res.json(waitingList);
 });
 
-// app.get("/sendMail", function(req, res) {
-//     let transporter = nodemailer.createTransport({
-//         service: 'gmail',
-//         auth: {
-//             user: 'alom182gd@gmail.com',
-//             pass: ''
-//         }
-//     });
+app.post("/sendMail", function(req, res) {
+    console.log("email enviado");
+    console.log(req.body);
+    let transporter = nodemailer.createTransport({
+        host: "smtp.ethereal.email",
+        port: 587,
+        secure: false,
+        auth: {
+            user: "josiah.goodwin97@ethereal.email",
+            pass: "2aCg9hVjP3k2dRNxcS"
+        }
+    });
+   
+    let mailOptions = {
+        from: 'alom182gd@gmail.com',
+        to: req.body.mail,
+        subject: 'Reservación disponible',
+        text: req.body.message
+    };
     
-//     let mailOptions = {
-//         from: 'alom182gd@gmail.com',
-//         to: 'alom182gd@gmail.com',
-//         subject: 'Jala',
-//         text: 'Ojala si'
-//     };
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            console.log('error ocurrssss');
+            console.log(error);
+        } else {
+            console.log('Email sent');
+        }
+    });
     
-//     transporter.sendMail(mailOptions, function(error, info){
-//         if (error) {
-//             console.log('error ocurrssss');
-//             console.log(error);
-//         } else {
-//             console.log('Email sent');
-//         }
-//     });
+    res.sendFile(path.join(__dirname, "reserve.html"));
+});
 
-//     res.sendFile(path.join(__dirname, "tables.html"));
-// });
+app.post("/api/tables", function(req, res) {
+    
+    var newR = req.body;
+    if (inTableList.length < 5) {
+        inTableList.push(newR);
+        isSpace = 0;
+    }
+    else {
+        waitingList.push(newR);
+        isSpace = 1;
+    }
+    res.send({isSpace: isSpace, newR: newR});
 
+  });
 
 // app.get("/clearTables", function(req,res) {
 //     waitingList = {};
@@ -93,21 +112,6 @@ app.get("/api/waitingList", function(req, res) {
 //     res.sendFile(path.join(__dirname, "tables.html"));
 
 // });
-
-app.post("/api/tables", function(req, res) {
-    
-    var newR = req.body;
-    if (inTableList.length < 5) {
-        inTableList.push(newR);
-        isSpace = 0;
-    }
-    else {
-        waitingList.push(newR);
-        isSpace = 1;
-    }
-    res.send({isSpace: isSpace, newR: newR});
-
-  });
 
 app.listen(PORT, function() {
     console.log("App listening on PORT " + PORT);

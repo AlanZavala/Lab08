@@ -70,7 +70,6 @@
 
 <!-- BELOW CODE IS CRITICAL. IT HANDLES HOW FORM DATA IS LOADED FROM OUR SERVER -->
 <script type="text/javascript">
-
   function insertReservation() {
     $.ajax({ url: "/api/tables", method: "GET" })
       .then(function(data) {
@@ -98,7 +97,7 @@
 
         for (var i = 0; i < data.length; i++) {
           var waitingList = $("#waitList");
-          var list = $("<li class='list-group-item mt-4'>");
+          var list = $("<li class='list-group-item info mt-4'>");
 
           list.append(
             $("<h6>").text("Table #" + (i + 1)),
@@ -107,7 +106,7 @@
             $("<p>").text("Name: " + data[i].reservationName),
             $("<p>").text("Email: " + data[i].reservationEmail),
             $("<p>").text("Phone: " + data[i].phoneNumber),
-            $("<button>").text("Mandar correo")
+            $("<button>").text("Mandar correo").addClass("btn-mail").val(data[i].reservationEmail)
 
           );
           waitingList.append(list);
@@ -123,6 +122,18 @@
       $("#tableList").empty();
       $("#waitList").empty();
     });
+});
+
+//obtener el mail para mandar el correo
+$("#waitList").on("click", ".btn-mail" ,function () {
+  var mailToSend = {
+    mail: $(this).val().trim(),
+    message: "Hay una mesa disponible para ti"
+  }
+  $.post("/sendMail", mailToSend).then(function(data){
+    alert("Correo enviado");
+    console.log($(this).val());
+  })
 });
   //clear table
   // $("#clear").click(function() {
